@@ -1,8 +1,10 @@
 # Show Center Lines
 
-This is a plugin for the [Glyphs font editor](http://glyphsapp.com/). After installation, it will add the menu item *View > Show Center Lines* ( de: *Mittellinien azeigen,* es: *Mostrar lineas centrales,* fr: *Afficher lignes centrales*). You can set a keyboard shortcut in System Preferences. The plug-in will display a crosshair in the middle of the current selection:
+This is a plugin for the [Glyphs font editor](http://glyphsapp.com/). After installation, it will add the menu item *View > Show Center Lines* (de: *Mittellinien azeigen,* es: *Mostrar lineas centrales,* fr: *Afficher lignes centrales*). You can set a keyboard shortcut in System Preferences. The plug-in will display a crosshair in the middle of the current selection:
 
 ![Show Center Lines](ShowCenterLines.png)
+
+It respects the italic angle and is Dark Mode compatible.
 
 ### Installation
 
