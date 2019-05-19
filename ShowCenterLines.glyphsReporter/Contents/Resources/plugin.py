@@ -42,13 +42,16 @@ class ShowCenterLines(ReporterPlugin):
 		x += horizontalDeviance # x of point that is yOffset from pivotal point
 		return NSPoint( x, thisPoint.y )
 	
+	def middleOfLayerSelection(self, layer):
+		x = NSMidX( layer.selectionBounds )
+		y = NSMidY( layer.selectionBounds )
+		return x, y
 		
 	def background(self, layer):
 		if layer.selection:
 			NSColor.controlColor().set()
 
-			x = NSMidX( layer.selectionBounds )
-			y = NSMidY( layer.selectionBounds )
+			x, y = self.middleOfLayerSelection(layer)
 			
 			cross = NSBezierPath.bezierPath()
 			angle = layer.master.italicAngle
@@ -65,7 +68,48 @@ class ShowCenterLines(ReporterPlugin):
 			# cross.setLineDash_count_phase_( (2.0/self.getScale(),1.0/self.getScale()), 2, 0 )
 			
 			cross.stroke()
+	
+	def conditionalContextMenus(self):
+		menuItems = []
+		font = Glyphs.font
+		if font and len(font.selectedLayers) == 1:
+			layer = font.selectedLayers[0]
+			
+			# Exactly one object is selected and it’s an anchor
+			if layer.selection:
+				# Return context menu item
+				menuItems.append({
+					'name': Glyphs.localize({
+							'en': u'Add Center Lines as Guides', 
+							'de': u'Mittellinien als Hilfslinien hinzufügen',
+							'es': u'Añadir lineas centrales como guías',
+							'fr': u'Ajouter lignes centrales comme guides',
+						}), 
+					'action': self.addCenterGuides
+				})
+		return menuItems
 
+	def addCenterGuides(self, sender=None):
+		if Glyphs.font and len(Glyphs.font.selectedLayers) == 1:
+			layer = Glyphs.font.selectedLayers[0]
+			if layer.selection:
+				x, y = self.middleOfLayerSelection(layer)
+				
+				# vertical line
+				g = GSGuideLine()
+				g.position = NSPoint(x,y)
+				g.angle= 90 - layer.master.italicAngle
+				layer.guideLines.append( g )
+				
+				# horizontal line
+				g = GSGuideLine()
+				g.position = NSPoint(x,y)
+				g.angle= 0
+				layer.guideLines.append( g )
+				
+				Glyphs.defaults["showGuidelines"] = 1
+				
+	
 	def __file__(self):
 		"""Please leave this method unchanged"""
 		return __file__
