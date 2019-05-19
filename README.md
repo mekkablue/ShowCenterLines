@@ -6,6 +6,8 @@ This is a plugin for the [Glyphs font editor](http://glyphsapp.com/). After inst
 
 It respects the italic angle and is Dark Mode compatible.
 
+Via the context menu, you can add the current center lines as (blue) local guides.
+
 ### Installation
 
 1. One-click install *Show Center Lines* from *Window > Plugin Manager*

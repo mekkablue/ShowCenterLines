@@ -49,7 +49,7 @@ class ShowCenterLines(ReporterPlugin):
 		
 	def background(self, layer):
 		if layer.selection:
-			NSColor.controlColor().set()
+			NSColor.disabledControlTextColor().set()
 
 			x, y = self.middleOfLayerSelection(layer)
 			
