@@ -18,7 +18,8 @@ from GlyphsApp import *
 from GlyphsApp.plugins import *
 
 class ShowCenterLines(ReporterPlugin):
-
+	
+	@objc.python_method
 	def settings(self):
 		self.menuName = Glyphs.localize({
 			'en': u'Center Lines',
@@ -27,6 +28,7 @@ class ShowCenterLines(ReporterPlugin):
 			'fr': u'lignes centrales',
 		})
 	
+	@objc.python_method
 	def italicize( self, thisPoint, italicAngle=0.0, pivotalY=0.0 ):
 		"""
 		Returns the italicized position of an NSPoint 'thisPoint'
@@ -42,11 +44,13 @@ class ShowCenterLines(ReporterPlugin):
 		x += horizontalDeviance # x of point that is yOffset from pivotal point
 		return NSPoint( x, thisPoint.y )
 	
+	@objc.python_method
 	def middleOfLayerSelection(self, layer):
 		x = NSMidX( layer.selectionBounds )
 		y = NSMidY( layer.selectionBounds )
-		return x, y
-		
+		return NSMakePoint(x, y)
+	
+	@objc.python_method
 	def background(self, layer):
 		if layer.selection:
 			NSColor.disabledControlTextColor().set()
@@ -69,6 +73,7 @@ class ShowCenterLines(ReporterPlugin):
 			
 			cross.stroke()
 	
+	@objc.python_method
 	def conditionalContextMenus(self):
 		menuItems = []
 		font = Glyphs.font
@@ -83,33 +88,49 @@ class ShowCenterLines(ReporterPlugin):
 							'en': u'Add Center Lines as Guides', 
 							'de': u'Mittellinien als Hilfslinien hinzufügen',
 							'es': u'Añadir lineas centrales como guías',
-							'fr': u'Ajouter lignes centrales comme guides',
+							'fr': u'Ajouter lignes centrales comme repères',
 						}), 
-					'action': self.addCenterGuides
+					'action': self.addCenterGuides_
 				})
 		return menuItems
 
-	def addCenterGuides(self, sender=None):
+
+	@objc.python_method
+	def guideAtPointWithAngle( self, point, angle ):
+		try:
+			try:
+				# GLYPHS 3
+				g = GSGuide()
+			except:
+				# GLYPHS 2
+				g = GSGuideLine()
+			g.position = point
+			g.angle = angle
+			return g
+		except Exception as e:
+			self.logToConsole( "guideAtPointWithAngle: %s" % str(e) )
+			return None
+
+	def addCenterGuides_(self, sender=None):
 		if Glyphs.font and len(Glyphs.font.selectedLayers) == 1:
 			layer = Glyphs.font.selectedLayers[0]
 			if layer.selection:
-				x, y = self.middleOfLayerSelection(layer)
+				center = self.middleOfLayerSelection(layer)
+				italicAngle = 90-layer.master.italicAngle
 				
-				# vertical line
-				g = GSGuideLine()
-				g.position = NSPoint(x,y)
-				g.angle= 90 - layer.master.italicAngle
-				layer.guideLines.append( g )
+				# turn vertical line into guide:
+				layer.guideLines.append(self.guideAtPointWithAngle( center, italicAngle ))
 				
-				# horizontal line
-				g = GSGuideLine()
-				g.position = NSPoint(x,y)
-				g.angle= 0
-				layer.guideLines.append( g )
+				# turn horizontal line into guide:
+				layer.guideLines.append(self.guideAtPointWithAngle( center, 0 ))
 				
-				Glyphs.defaults["showGuidelines"] = 1
-				
+				# enable View > Show Guides:
+				if Glyphs.versionNumber >= 3.0:
+					Glyphs.defaults["showGuides"] = 1
+				else:
+					Glyphs.defaults["showGuidelines"] = 1
 	
+	@objc.python_method
 	def __file__(self):
 		"""Please leave this method unchanged"""
 		return __file__
