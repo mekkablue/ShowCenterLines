@@ -13,19 +13,48 @@
 
 import objc
 from math import radians, tan
+from copy import copy
 from Foundation import NSMidX, NSMidY
 from GlyphsApp import *
 from GlyphsApp.plugins import *
+from AppKit import NSAffineTransform, NSAffineTransformStruct, NSMakePoint
+
+
+def transform(shiftX=0.0, shiftY=0.0, rotate=0.0, skew=0.0, scale=1.0):
+	"""
+	Returns an NSAffineTransform object for transforming layers.
+	Apply an NSAffineTransform t object like this:
+		Layer.transform_checkForSelection_doComponents_(t,False,True)
+	Access its transformation matrix like this:
+		tMatrix = t.transformStruct() # returns the 6-float tuple
+	Apply the matrix tuple like this:
+		Layer.applyTransform(tMatrix)
+		Component.applyTransform(tMatrix)
+		Path.applyTransform(tMatrix)
+	Chain multiple NSAffineTransform objects t1, t2 like this:
+		t1.appendTransform_(t2)
+	"""
+	myTransform = NSAffineTransform.transform()
+	if rotate:
+		myTransform.rotateByDegrees_(rotate)
+	if scale != 1.0:
+		myTransform.scaleBy_(scale)
+	if not (shiftX == 0.0 and shiftY == 0.0):
+		myTransform.translateXBy_yBy_(shiftX,shiftY)
+	if skew:
+		myTransform.shearXBy_(tan(radians(skew)))
+	return myTransform
+
 
 class ShowCenterLines(ReporterPlugin):
 	
 	@objc.python_method
 	def settings(self):
 		self.menuName = Glyphs.localize({
-			'en': u'Center Lines',
-			'de': u'Mittellinien',
-			'es': u'lineas centrales',
-			'fr': u'lignes centrales',
+			'en': 'Center Lines',
+			'de': 'Mittellinien',
+			'es': 'lineas centrales',
+			'fr': 'lignes centrales',
 		})
 	
 	@objc.python_method
@@ -54,14 +83,26 @@ class ShowCenterLines(ReporterPlugin):
 	def background(self, layer):
 		if layer.selection:
 			NSColor.disabledControlTextColor().set()
-
-			x, y = self.middleOfLayerSelection(layer)
+			angle = layer.master.italicAngle
+			
+			if angle == 0:
+				x, y = self.middleOfLayerSelection(layer)
+			else:
+				backSlantedSelectionBounds = layer.boundsOfSelectionAngle_(transform(skew=angle))
+				centerOfBackSlantedBounds = NSPoint(
+					NSMidX(backSlantedSelectionBounds),
+					NSMidY(backSlantedSelectionBounds),
+				)
+				x, y = self.italicize(
+					centerOfBackSlantedBounds,
+					italicAngle=angle,
+					pivotalY=0.0,
+					)
 			
 			cross = NSBezierPath.bezierPath()
-			angle = layer.master.italicAngle
-			if angle:
-				cross.moveToPoint_( self.italicize( NSPoint( x, y-5000 ), angle, y ) )
-				cross.lineToPoint_( self.italicize( NSPoint( x, y+5000 ), angle, y ) )
+			if angle != 0:
+				cross.moveToPoint_( self.italicize( NSPoint( x, y-5000 ), italicAngle=angle, pivotalY=y ) )
+				cross.lineToPoint_( self.italicize( NSPoint( x, y+5000 ), italicAngle=angle, pivotalY=y ) )
 			else:
 				cross.moveToPoint_( NSPoint( x, y-5000 ) )
 				cross.lineToPoint_( NSPoint( x, y+5000 ) )
@@ -72,7 +113,8 @@ class ShowCenterLines(ReporterPlugin):
 			# cross.setLineDash_count_phase_( (2.0/self.getScale(),1.0/self.getScale()), 2, 0 )
 			
 			cross.stroke()
-	
+
+
 	@objc.python_method
 	def conditionalContextMenus(self):
 		menuItems = []
@@ -85,10 +127,10 @@ class ShowCenterLines(ReporterPlugin):
 				# Return context menu item
 				menuItems.append({
 					'name': Glyphs.localize({
-							'en': u'Add Center Lines as Guides', 
-							'de': u'Mittellinien als Hilfslinien hinzufügen',
-							'es': u'Añadir lineas centrales como guías',
-							'fr': u'Ajouter lignes centrales comme repères',
+							'en': 'Add Center Lines as Guides', 
+							'de': 'Mittellinien als Hilfslinien hinzufügen',
+							'es': 'Añadir lineas centrales como guías',
+							'fr': 'Ajouter lignes centrales comme repères',
 						}), 
 					'action': self.addCenterGuides_
 				})
@@ -98,17 +140,17 @@ class ShowCenterLines(ReporterPlugin):
 	@objc.python_method
 	def guideAtPointWithAngle( self, point, angle ):
 		try:
-			try:
+			if Glyphs.versionNumber >= 3:
 				# GLYPHS 3
 				g = GSGuide()
-			except:
+			else:
 				# GLYPHS 2
 				g = GSGuideLine()
 			g.position = point
 			g.angle = angle
 			return g
 		except Exception as e:
-			self.logToConsole( "guideAtPointWithAngle: %s" % str(e) )
+			self.logToConsole(f"guideAtPointWithAngle: {str(e)}")
 			return None
 
 	def addCenterGuides_(self, sender=None):
