@@ -14,10 +14,9 @@
 import objc
 from math import radians, tan
 from copy import copy
-from Foundation import NSMidX, NSMidY
+from Foundation import NSMidX, NSMidY, NSAffineTransform, NSAffineTransformStruct, NSMakePoint, NSPoint
 from GlyphsApp import *
 from GlyphsApp.plugins import *
-from AppKit import NSAffineTransform, NSAffineTransformStruct, NSMakePoint
 
 
 def transform(shiftX=0.0, shiftY=0.0, rotate=0.0, skew=0.0, scale=1.0):
@@ -89,7 +88,7 @@ class ShowCenterLines(ReporterPlugin):
 				x, y = self.middleOfLayerSelection(layer)
 			else:
 				backSlantedSelectionBounds = layer.boundsOfSelectionAngle_(transform(skew=angle))
-				centerOfBackSlantedBounds = NSPoint(
+				centerOfBackSlantedBounds = NSMakePoint(
 					NSMidX(backSlantedSelectionBounds),
 					NSMidY(backSlantedSelectionBounds),
 				)

@@ -13,15 +13,15 @@
 	<key>CFBundleName</key>
 	<string>ShowCenterLines</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.5</string>
+	<string>2.0.6</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
+	<string>11</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/mekkablue/ShowCenterLines/master/ShowCenterLines.glyphsReporter/Contents/Info.plist</string>
 	<key>productPageURL</key>
 	<string>https://github.com/mekkablue/ShowCenterLines</string>
 	<key>productReleaseNotes</key>
-	<string>Better italic angle handling</string>
+	<string>Streamlined code</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Rainer Erich Scheichelbauer, 2019</string>
 	<key>NSPrincipalClass</key>
