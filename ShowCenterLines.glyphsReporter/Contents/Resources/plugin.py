@@ -146,7 +146,7 @@ class ShowCenterLines(ReporterPlugin):
 			g.angle = angle
 			return g
 		except Exception as e:
-			self.logToConsole(f"guideAtPointWithAngle: {str(e)}")
+			self.logToConsole("guideAtPointWithAngle: %s" % e)
 			return None
 
 	def addCenterGuides_(self, sender=None):
