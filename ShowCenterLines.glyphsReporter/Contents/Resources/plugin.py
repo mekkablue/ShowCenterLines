@@ -83,38 +83,39 @@ class ShowCenterLines(ReporterPlugin):
 
 	@objc.python_method
 	def background(self, layer):
-		if layer.selection:
-			NSColor.disabledControlTextColor().set()
-			angle = layer.master.italicAngle
+		if not layer.selection:
+			return
+		NSColor.disabledControlTextColor().set()
+		angle = layer.master.italicAngle
 
-			if angle == 0:
-				x, y = self.middleOfLayerSelection(layer)
-			else:
-				backSlantedSelectionBounds = layer.boundsOfSelectionAngle_(transform(skew=angle))
-				centerOfBackSlantedBounds = NSMakePoint(
-					NSMidX(backSlantedSelectionBounds),
-					NSMidY(backSlantedSelectionBounds),
-				)
-				x, y = self.italicize(
-					centerOfBackSlantedBounds,
-					italicAngle=angle,
-					pivotalY=0.0,
-				)
+		if angle == 0:
+			x, y = self.middleOfLayerSelection(layer)
+		else:
+			backSlantedSelectionBounds = layer.boundsOfSelectionAngle_(transform(skew=angle))
+			centerOfBackSlantedBounds = NSMakePoint(
+				NSMidX(backSlantedSelectionBounds),
+				NSMidY(backSlantedSelectionBounds),
+			)
+			x, y = self.italicize(
+				centerOfBackSlantedBounds,
+				italicAngle=angle,
+				pivotalY=0.0,
+			)
 
-			cross = NSBezierPath.bezierPath()
-			if angle != 0:
-				cross.moveToPoint_(self.italicize(NSPoint(x, y - 5000), italicAngle=angle, pivotalY=y))
-				cross.lineToPoint_(self.italicize(NSPoint(x, y + 5000), italicAngle=angle, pivotalY=y))
-			else:
-				cross.moveToPoint_(NSPoint(x, y - 5000))
-				cross.lineToPoint_(NSPoint(x, y + 5000))
-			cross.moveToPoint_(NSPoint(x - 5000, y))
-			cross.lineToPoint_(NSPoint(x + 5000, y))
-			cross.setLineWidth_(1.0 / self.getScale())
-			# dash:
-			# cross.setLineDash_count_phase_((2.0 / self.getScale(),1.0 / self.getScale()), 2, 0)
+		cross = NSBezierPath.bezierPath()
+		if angle != 0:
+			cross.moveToPoint_(self.italicize(NSPoint(x, y - 5000), italicAngle=angle, pivotalY=y))
+			cross.lineToPoint_(self.italicize(NSPoint(x, y + 5000), italicAngle=angle, pivotalY=y))
+		else:
+			cross.moveToPoint_(NSPoint(x, y - 5000))
+			cross.lineToPoint_(NSPoint(x, y + 5000))
+		cross.moveToPoint_(NSPoint(x - 5000, y))
+		cross.lineToPoint_(NSPoint(x + 5000, y))
+		cross.setLineWidth_(1.0 / self.getScale())
+		# dash:
+		# cross.setLineDash_count_phase_((2.0 / self.getScale(),1.0 / self.getScale()), 2, 0)
 
-			cross.stroke()
+		cross.stroke()
 
 	@objc.python_method
 	def conditionalContextMenus(self):
@@ -149,23 +150,25 @@ class ShowCenterLines(ReporterPlugin):
 			return None
 
 	def addCenterGuides_(self, sender=None):
-		if Glyphs.font and len(Glyphs.font.selectedLayers) == 1:
-			layer = Glyphs.font.selectedLayers[0]
-			if layer.selection:
-				center = self.middleOfLayerSelection(layer)
-				italicAngle = 90 - layer.master.italicAngle
+		if not Glyphs.font or len(Glyphs.font.selectedLayers) != 1:
+			return
+		layer = Glyphs.font.selectedLayers[0]
+		if not layer.selection:
+			return
+		center = self.middleOfLayerSelection(layer)
+		italicAngle = 90 - layer.master.italicAngle
 
-				# turn vertical line into guide:
-				layer.guideLines.append(self.guideAtPointWithAngle(center, italicAngle))
+		# turn vertical line into guide:
+		layer.guideLines.append(self.guideAtPointWithAngle(center, italicAngle))
 
-				# turn horizontal line into guide:
-				layer.guideLines.append(self.guideAtPointWithAngle(center, 0))
+		# turn horizontal line into guide:
+		layer.guideLines.append(self.guideAtPointWithAngle(center, 0))
 
-				# enable View > Show Guides:
-				if Glyphs.versionNumber >= 3.0:
-					Glyphs.defaults["showGuides"] = 1
-				else:
-					Glyphs.defaults["showGuidelines"] = 1
+		# enable View > Show Guides:
+		if Glyphs.versionNumber >= 3.0:
+			Glyphs.defaults["showGuides"] = 1
+		else:
+			Glyphs.defaults["showGuidelines"] = 1
 
 	@objc.python_method
 	def __file__(self):
