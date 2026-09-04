@@ -130,14 +130,16 @@ class ShowCenterLines(ReporterPlugin):
 			angle = layer.italicAngle()
 		italicAngle = 90 - angle
 
-		# turn vertical line into guide:
-		layer.guideLines.append(self.guideAtPointWithAngle(center, italicAngle))
-
-		# turn horizontal line into guide:
-		layer.guideLines.append(self.guideAtPointWithAngle(center, 0))
+		guides = [self.guideAtPointWithAngle(center, italicAngle), self.guideAtPointWithAngle(center, 0)]
+		if Glyphs.versionNumber >= 3:
+			layer.guides.extend(guides)
+		else:
+			layer.guideLines.extend(guides)
 
 		# enable View > Show Guides:
-		if Glyphs.versionNumber >= 3.0:
+		if Glyphs.versionNumber >= 4.0:
+			Glyphs.defaults["GSShowGuides"] = 1
+		elif Glyphs.versionNumber >= 3.0:
 			Glyphs.defaults["showGuides"] = 1
 		else:
 			Glyphs.defaults["showGuidelines"] = 1
