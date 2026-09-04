@@ -18,10 +18,6 @@ Via the context menu, you can add the current center lines as (blue) local guide
 1. Open at least one glyph in Edit View.
 2. Use *View > Show Center Lines* to toggle the display of the center lines.
 
-### Changelog
-
-**2.0.7:** Fixed a repeating exception when a corner component (or cap, brush or segment component) was part of the selection in Glyphs 4. Corner components have no coordinates of their own, and Glyphs 4 exposes them in the selection in a shape the plug-in did not expect, which made `layer.selectionBounds` throw on every redraw. Corner-like components are now skipped, the center is measured from the remaining selection, and anything that still goes wrong is logged to the Macro Window once instead of raising an alert on every redraw.
-
 ### License
 
 Copyright 2019 Rainer Erich Scheichelbauer (@mekkablue).
