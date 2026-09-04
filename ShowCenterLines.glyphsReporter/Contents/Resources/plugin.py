@@ -22,32 +22,6 @@ else:
 	from GlyphsApp import GSGuideLine as GSGuide
 
 
-def transform(shiftX=0.0, shiftY=0.0, rotate=0.0, skew=0.0, scale=1.0):
-	"""
-	Returns an NSAffineTransform object for transforming layers.
-	Apply an NSAffineTransform t object like this:
-		Layer.transform_checkForSelection_doComponents_(t,False,True)
-	Access its transformation matrix like this:
-		tMatrix = t.transformStruct() # returns the 6-float tuple
-	Apply the matrix tuple like this:
-		Layer.applyTransform(tMatrix)
-		Component.applyTransform(tMatrix)
-		Path.applyTransform(tMatrix)
-	Chain multiple NSAffineTransform objects t1, t2 like this:
-		t1.appendTransform_(t2)
-	"""
-	myTransform = NSAffineTransform.transform()
-	if rotate:
-		myTransform.rotateByDegrees_(rotate)
-	if scale != 1.0:
-		myTransform.scaleBy_(scale)
-	if not (shiftX == 0.0 and shiftY == 0.0):
-		myTransform.translateXBy_yBy_(shiftX, shiftY)
-	if skew:
-		myTransform.shearXBy_(tan(radians(skew)))
-	return myTransform
-
-
 class ShowCenterLines(ReporterPlugin):
 
 	@objc.python_method
