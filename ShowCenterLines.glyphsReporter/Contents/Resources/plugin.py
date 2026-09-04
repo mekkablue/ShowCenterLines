@@ -61,7 +61,10 @@ class ShowCenterLines(ReporterPlugin):
 		if not layer.selection:
 			return
 		NSColor.disabledControlTextColor().set()
-		angle = layer.master.italicAngle
+		if Glyphs.versionNumber >= 3:
+			angle = layer.italicAngle
+		else:
+			angle = layer.italicAngle()
 
 		if angle == 0:
 			x, y = self.middleOfLayerSelection(layer)
@@ -133,7 +136,11 @@ class ShowCenterLines(ReporterPlugin):
 		if not layer.selection:
 			return
 		center = self.middleOfLayerSelection(layer)
-		italicAngle = 90 - layer.master.italicAngle
+		if Glyphs.versionNumber >= 3:
+			angle = layer.italicAngle
+		else:
+			angle = layer.italicAngle()
+		italicAngle = 90 - angle
 
 		# turn vertical line into guide:
 		layer.guideLines.append(self.guideAtPointWithAngle(center, italicAngle))
