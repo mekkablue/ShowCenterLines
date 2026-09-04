@@ -12,7 +12,7 @@
 ###########################################################################################################
 
 import objc
-from math import radians, tan
+from math import isinf, radians, tan
 from Foundation import NSMidX, NSMidY, NSAffineTransform, NSMakePoint, NSPoint, NSColor, NSBezierPath
 from GlyphsApp import Glyphs
 from GlyphsApp.plugins import ReporterPlugin
@@ -101,6 +101,8 @@ class ShowCenterLines(ReporterPlugin):
 				italicAngle=angle,
 				pivotalY=0.0,
 			)
+		if isinf(x) or isinf(y):
+			return
 
 		cross = NSBezierPath.bezierPath()
 		if angle != 0:
