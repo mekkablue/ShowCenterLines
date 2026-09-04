@@ -51,8 +51,9 @@ class ShowCenterLines(ReporterPlugin):
 
 	@objc.python_method
 	def middleOfLayerSelection(self, layer):
-		x = NSMidX(layer.selectionBounds)
-		y = NSMidY(layer.selectionBounds)
+		bounds = layer.selectionBounds
+		x = NSMidX(bounds)
+		y = NSMidY(bounds)
 		return NSMakePoint(x, y)
 
 	@objc.python_method
