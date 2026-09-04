@@ -42,10 +42,10 @@ class ShowCenterLines(ReporterPlugin):
 		Usage: myPoint = italicize(myPoint, 10, xHeight * 0.5)
 		"""
 		x = thisPoint.x
-		yOffset = thisPoint.y - pivotalY  # calculate vertical offset
-		italicAngle = radians(italicAngle)  # convert to radians
-		tangens = tan(italicAngle)  # math.tan needs radians
-		horizontalDeviance = tangens * yOffset  # vertical distance from pivotal point
+		yOffset = thisPoint.y - pivotalY  # vertical distance from pivotal point
+		italicAngleRad = radians(italicAngle)  # math.tan needs radians
+		tangens = tan(italicAngleRad)
+		horizontalDeviance = tangens * yOffset  # horizontal shift caused by the slant
 		x += horizontalDeviance  # x of point that is yOffset from pivotal point
 		return NSPoint(x, thisPoint.y)
 
