@@ -13,7 +13,7 @@
 
 import objc
 from math import isinf, radians, tan
-from Foundation import NSMidX, NSMidY, NSAffineTransform, NSMakePoint, NSPoint, NSColor, NSBezierPath
+from Cocoa import NSMidX, NSMidY, NSMakePoint, NSPoint, NSColor, NSBezierPath
 from GlyphsApp import Glyphs
 from GlyphsApp.plugins import ReporterPlugin
 if Glyphs.versionNumber >= 3:
