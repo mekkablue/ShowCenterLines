@@ -66,19 +66,7 @@ class ShowCenterLines(ReporterPlugin):
 		else:
 			angle = layer.italicAngle()
 
-		if angle == 0:
-			x, y = self.middleOfLayerSelection(layer)
-		else:
-			backSlantedSelectionBounds = layer.boundsOfSelectionAngle_(transform(skew=angle))
-			centerOfBackSlantedBounds = NSMakePoint(
-				NSMidX(backSlantedSelectionBounds),
-				NSMidY(backSlantedSelectionBounds),
-			)
-			x, y = self.italicize(
-				centerOfBackSlantedBounds,
-				italicAngle=angle,
-				pivotalY=0.0,
-			)
+		x, y = self.middleOfLayerSelection(layer)
 		if isinf(x) or isinf(y):
 			return
 
